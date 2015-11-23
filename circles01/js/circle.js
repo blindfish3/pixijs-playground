@@ -16,15 +16,9 @@ blindfish.Circle = function (targetID, w, h, radius, numDivisions, controlsID) {
         }, {
         name: 'speed',
         default: 0.015
-        }, {
-        name: 'r',
-        default: 255
-        }, {
-        name: 'g',
-        default: 255
-        }, {
-        name: 'b',
-        default: 255
+        },{
+            name: 'animated',
+            default: true
         }]);
 
     this.stage = new PIXI.Container();
@@ -72,8 +66,12 @@ blindfish.Circle = function (targetID, w, h, radius, numDivisions, controlsID) {
         function () {
 
             if (self.v.speed == 0) {
-                self.resetRotation();
+                self.animated = false;
             }
+            else {
+                self.animated = true;
+            }
+
         });
 
     this.addCircles();
@@ -186,8 +184,18 @@ blindfish.Circle.prototype.animate = function () {
     for (var i = 0; i < this.containersLength; i++) {
         var c = this.circleContainers[i],
             dir = (i % 2 === 0) ? 1 : -1; // reversing directions is nice :)
+            c.rotation += this.v.speed * dir;
 
-        c.rotation += this.v.speed * dir;
+        // doing anything useful with this will be hard:
+        // TODO: change speed slider event to ease value changes...
+        // but also interpolate so you reach 0 at optimum rotation
+//            if(!this.animated) {
+//                var foo = c.rotation % (Math.PI * 2) ;
+//                if(foo < 0.25) {
+//                    console.info(foo);
+//                }
+//
+//            }
 
     }
 };
