@@ -1,0 +1,36 @@
+body {
+    padding: 1.5em;
+    margin: 0;
+    background: #666;
+    font-family: Georgia;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: Verdana;
+    margin-bottom: 0.15em;
+}
+
+h1 {
+    font-size: 1.5em;
+}
+
+.wrapper {
+    background: #333;
+    float: left;
+    margin: 5px 20px 5px 0;
+    padding: 5px;
+    border: solid 1px #666;
+    border-radius: 3px;
+    box-shadow: 5px 5px 5px rgba(0,0,0,0.25);
+}
+
+
+.controls {
+    float: left;
+    width: 280px;
+    margin: 5px 20px 5px 0;
+}
+
