@@ -4,25 +4,45 @@ blindfish.Circle = function (targetID, w, h, radius, numDivisions, controlsID) {
 
     var controlsID = controlsID || targetID;
 
-    this.v = new blindfish.VariableManager([{
-        name: 'divisions',
-        default: numDivisions
-        }, {
-        name: 'depth',
-        default: 2
-        }, {
-        name: 'opacity',
-        default: 0.25
-        }, {
-          name: 'line_width',
-            default: 64
-        }, {
-        name: 'speed',
-        default: 0.0
-        }]);
+    this.v = new blindfish.VariableManager([
+        { name: 'divisions', default: numDivisions },
+        { name: 'depth', default: 2 },
+        { name: 'opacity', default: 0.1 },
+        { name: 'line_width', default: 100 },
+        { name: 'speed', default: 0.025 },
+        { name: 'noise', default: 0.1 },
+        { name: 'twist', default: 3 },
+        { name: 'blur', default: 50},
+        { name: 'invert', default: false }
+    ]);
+
+    console.info(this.v.bloom_blur);
 
     this.stage = new PIXI.Container();
     this.renderer = PIXI.autoDetectRenderer(w, h);
+
+    // Filters look interesting...
+    this.noiseFilter = new PIXI.filters.NoiseFilter();
+    this.twistFilter = new PIXI.filters.TwistFilter();
+    this.invertFilter = new PIXI.filters.InvertFilter();
+    this.blurFilter = new PIXI.filters.BlurFilter();
+    this.fooFilter = 1;
+
+    this.noiseFilter.noise = this.v.noise;
+    this.noiseFilter.padding = this.radius*2;
+    this.twistFilter.angle = this.v.twist;
+    this.invertFilter.invert = 0;
+    this.invertFilter.padding = this.radius*2;
+    this.blurFilter.blur = this.v.blur;
+
+//this.DotScreenFilter.angle = 45;
+//    this.DotScreenFilter.scale = 1;
+
+
+    //TODO: figure out why in some instances clipping occurs
+    // when changing line width.  Definitely associated with filters,
+    // especially those that accept padding
+    this.stage.filters = [this.noiseFilter, this.invertFilter,  this.blurFilter, this.twistFilter];
 
     this.centreX = w / 2;
     this.centreY = h / 2;
@@ -65,6 +85,7 @@ blindfish.Circle = function (targetID, w, h, radius, numDivisions, controlsID) {
         },
         function () {
             self.updateCircles();
+            self.noiseFilter.padding = self.radius*2;
         });
 
 
@@ -104,6 +125,62 @@ blindfish.Circle = function (targetID, w, h, radius, numDivisions, controlsID) {
 
             }
         });
+
+    this.v.addSlider('controls2',
+            'noise', {
+                min: 0,
+                max: 0.25,
+                value: this.v.noise,
+                step: 0.01
+            },
+            function (x) {
+                return x
+            },
+            function (x) {
+                return x
+            },
+            function () {
+                self.noiseFilter.padding = self.radius*2;
+                self.noiseFilter.noise = self.v.noise;
+            });
+
+            this.v.addSlider('controls2',
+                    'twist', {
+                        min: 0,
+                        max: 10,
+                        value: this.v.twist,
+                        step: 0.1
+                    },
+                    function (x) {
+                        return x
+                    },
+                    function (x) {
+                        return x
+                    },
+                    function () {
+                        self.twistFilter.angle = self.v.twist;
+                    });
+
+            this.v.addSlider('controls2',
+                    'blur', {
+                        min: 0,
+                        max: 50,
+                        value: this.v.blur,
+                        step: 1
+                    },
+                    function (x) {
+                        return x
+                    },
+                    function (x) {
+                        return x
+                    },
+                    function () {
+                        self.blurFilter.blur = self.v.blur;
+                    });
+
+this.v.addCheckbox('controls2', 'invert', {val : this.v.invert }, 'invert', function() {
+    self.invertFilter.invert = self.v.invert ? 1 : 0;
+});
 
     this.addCircles();
 
@@ -145,8 +222,12 @@ blindfish.Circle.prototype.addCircles = function () {
         c.position.y = cy;
         //          c.cacheAsBitmap = true;
 
+//        c.filters= [this.fooFilter];
+
         this.circleContainers.push(c);
+
         this.stage.addChild(c);
+
 
     }
 
@@ -168,10 +249,10 @@ blindfish.Circle.prototype.makeCircleSet = function () {
         var x = this.circleOffsets[j].x,
               y = this.circleOffsets[j].y
             g.lineTo(x,y);
-
     }
 
     c.addChild(g);
+
 // g.tint = Math.random() * 0xFFFFFF;
     // c.alpha = 0.015;
     c.alpha = this.v.opacity;
