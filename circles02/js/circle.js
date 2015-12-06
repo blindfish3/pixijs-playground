@@ -7,12 +7,13 @@ blindfish.Circle = function (targetID, w, h, radius, numDivisions, controlsID) {
     this.v = new blindfish.VariableManager([
         { name: 'divisions', default: numDivisions },
         { name: 'depth', default: 2 },
-        { name: 'opacity', default: 0.1 },
+        { name: 'opacity', default: 0.05 },
         { name: 'line_width', default: 100 },
         { name: 'speed', default: 0.025 },
         { name: 'noise', default: 0.1 },
         { name: 'twist', default: 3 },
         { name: 'blur', default: 50},
+        { name: 'sepia', default: 0.3},
         { name: 'invert', default: false }
     ]);
 
@@ -26,7 +27,8 @@ blindfish.Circle = function (targetID, w, h, radius, numDivisions, controlsID) {
     this.twistFilter = new PIXI.filters.TwistFilter();
     this.invertFilter = new PIXI.filters.InvertFilter();
     this.blurFilter = new PIXI.filters.BlurFilter();
-    this.fooFilter = 1;
+    this.sepiaFilter = new PIXI.filters.SepiaFilter();
+
 
     this.noiseFilter.noise = this.v.noise;
     this.noiseFilter.padding = this.radius*2;
@@ -34,15 +36,12 @@ blindfish.Circle = function (targetID, w, h, radius, numDivisions, controlsID) {
     this.invertFilter.invert = 0;
     this.invertFilter.padding = this.radius*2;
     this.blurFilter.blur = this.v.blur;
-
-//this.DotScreenFilter.angle = 45;
-//    this.DotScreenFilter.scale = 1;
-
+    this.sepiaFilter.sepia = this.v.sepia;
 
     //TODO: figure out why in some instances clipping occurs
     // when changing line width.  Definitely associated with filters,
     // especially those that accept padding
-    this.stage.filters = [this.noiseFilter, this.invertFilter,  this.blurFilter, this.twistFilter];
+    this.stage.filters = [this.sepiaFilter, this.noiseFilter, this.invertFilter,  this.blurFilter, this.twistFilter];
 
     this.centreX = w / 2;
     this.centreY = h / 2;
@@ -146,8 +145,8 @@ blindfish.Circle = function (targetID, w, h, radius, numDivisions, controlsID) {
 
             this.v.addSlider('controls2',
                     'twist', {
-                        min: 0,
-                        max: 10,
+                        min: -5,
+                        max: 5,
                         value: this.v.twist,
                         step: 0.1
                     },
@@ -164,7 +163,7 @@ blindfish.Circle = function (targetID, w, h, radius, numDivisions, controlsID) {
             this.v.addSlider('controls2',
                     'blur', {
                         min: 0,
-                        max: 50,
+                        max: 100,
                         value: this.v.blur,
                         step: 1
                     },
@@ -176,6 +175,23 @@ blindfish.Circle = function (targetID, w, h, radius, numDivisions, controlsID) {
                     },
                     function () {
                         self.blurFilter.blur = self.v.blur;
+                    });
+
+      this.v.addSlider('controls2',
+                    'sepia', {
+                        min: 0,
+                        max: 1,
+                        value: this.v.sepia,
+                        step: 0.05
+                    },
+                    function (x) {
+                        return x
+                    },
+                    function (x) {
+                        return x
+                    },
+                    function () {
+                        self.sepiaFilter.sepia = self.v.sepia;
                     });
 
 this.v.addCheckbox('controls2', 'invert', {val : this.v.invert }, 'invert', function() {
@@ -253,6 +269,7 @@ blindfish.Circle.prototype.makeCircleSet = function () {
 
     c.addChild(g);
 
+    // TODO: add colour in a uniform fashion that is stored
 // g.tint = Math.random() * 0xFFFFFF;
     // c.alpha = 0.015;
     c.alpha = this.v.opacity;
