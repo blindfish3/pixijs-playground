@@ -3,6 +3,7 @@
 
     // create a renderer instance.
     blindfish.renderer = PIXI.autoDetectRenderer(450, 325);
+//    blindfish.renderer = PIXI.autoDetectRenderer(600, 460);
 
     // add the renderer view element to the DOM
     document.getElementById('sketch01').appendChild(blindfish.renderer.view);
@@ -25,8 +26,8 @@
         var img = PIXI.BaseTexture.fromImage('elephant.jpg'),
             imgWidth = img.width,
             imgHeight = img.height,
-            particleWidth = 6,
-            particleHeight = 6,
+            particleWidth = 4,
+            particleHeight = 4,
             halfParticleWidth = particleWidth / 2,
             halfParticleHeight = particleHeight / 2,
             horizontalDivisions = Math.floor(imgWidth / particleWidth),
@@ -43,8 +44,8 @@
 
                 s.anchor.x = 0.5;
                 s.anchor.y = 0.5;
-                s.position.x = x - halfParticleWidth;
-                s.position.y = y - halfParticleHeight;
+                s.position.x = x;
+                s.position.y = y;
 
                 blindfish.sprites[index] = new blindfish.PixiParticle(s);
 
