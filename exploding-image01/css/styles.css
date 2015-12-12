@@ -31,7 +31,9 @@ h1 {
 
 
 
-
+canvas {
+    cursor: cell !important;
+}
 
 
 #controls {
