@@ -61,3 +61,38 @@ blindfish.PixiParticle.prototype.moveToOrigin = function () {
 
     }
 }
+
+blindfish.PixiParticle.prototype.explode = function (mode) {
+
+    if(mode === "implode") {
+        var dx = blindfish.stageCentreX - this.s.position.x,
+              dy = blindfish.stageCentreY - this.s.position.y,
+              deltaSquared = dx * dx + dy * dy,
+              angle = Math.atan2(dy, dx),
+              speed = deltaSquared;
+
+
+        this.returnToOrigin = false;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+
+
+        this.s.position.x += this.vx;
+        this.s.position.y += this.vy;
+    }
+
+    else if(mode === "random") {
+        this.returnToOrigin = false;
+        this.s.position.x = Math.random() * 2000-1000;
+        this.s.position.y = Math.random() * 2000-1000;
+
+    }
+
+};
+
+blindfish.PixiParticle.prototype.reset = function () {
+    this.vx = 0;
+    this.vy = 0;
+    this.s.position.x = this.originX;
+    this.s.position.y = this.originY;
+};

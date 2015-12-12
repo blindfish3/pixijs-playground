@@ -1,12 +1,12 @@
 (function () {
 
-
     // create a renderer instance.
     blindfish.renderer = PIXI.autoDetectRenderer(450, 325);
-//    blindfish.renderer = PIXI.autoDetectRenderer(600, 460);
 
     // add the renderer view element to the DOM
-    document.getElementById('sketch01').appendChild(blindfish.renderer.view);
+   var sketch = document.getElementById('sketch01');
+
+    sketch.appendChild(blindfish.renderer.view);
 
     // possibly unecessary given we're using a single image
     PIXI.loader
@@ -17,9 +17,11 @@
     function onAssetsLoaded() {
 
         blindfish.stage = new PIXI.Container();
+        blindfish.stageCentreX =  blindfish.renderer.width/2;
+        blindfish.stageCentreY =  blindfish.renderer.height/2;
 
         blindfish.container = new PIXI.DisplayObjectContainer();
-        blindfish.container = new PIXI.ParticleContainer(200000, [false, true, false, false, false]);
+        blindfish.container = new PIXI.ParticleContainer(10000, [false, true, false, false, false]);
         blindfish.stage.addChild(blindfish.container);
         blindfish.sprites = [];
 
@@ -58,25 +60,22 @@
         console.info("number of particles: " + blindfish.spritesLen);
 
         requestAnimationFrame(animate);
-
     }
 
 
     function animate() {
         // avoid recalculating these in every particle!
         var mouseX = blindfish.renderer.plugins.interaction.mouse.global.x,
-            mouseY = blindfish.renderer.plugins.interaction.mouse.global.y,
-            mouseOverStage = false;
+              mouseY = blindfish.renderer.plugins.interaction.mouse.global.y;
 
-        if (mouseX > 0 && mouseX < blindfish.renderer.width && mouseY > 0 && mouseY < blindfish.renderer.height) {
-            mouseOverStage = true;
-        }
-        else {
-            mouseOverStage = false;
-        }
+        blindfish.mouseOverStage = (mouseX > 0 &&
+                                                mouseX <  blindfish.renderer.width &&
+                                                mouseY > 0 &&
+                                                mouseY < blindfish.renderer.height);
+
 
         for (var i = blindfish.spritesLen - 1; i > 0; i--) {
-            blindfish.sprites[i].move(mouseX, mouseY, mouseOverStage);
+            blindfish.sprites[i].move(mouseX, mouseY, blindfish.mouseOverStage);
         }
 
         // render the stage
@@ -84,5 +83,22 @@
         requestAnimationFrame(animate);
     }
 
+    document.getElementById('implodeBtn').addEventListener('click',function() {
+        explode("implode");
+    });
+    document.getElementById('randomBtn').addEventListener('click',function() {
+        explode("random");
+    });
+
+    function explode(mode) {
+        for (var i = blindfish.spritesLen - 1; i > 0; i--) {
+                blindfish.sprites[i].explode(mode);
+            }
+    }
+    document.getElementById('resetBtn').addEventListener('click',function() {
+        for (var i = blindfish.spritesLen - 1; i > 0; i--) {
+                blindfish.sprites[i].reset();
+            }
+    });
 
 })();
